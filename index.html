@@ -1,0 +1,95 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>PCB Feasible Area Viewer</title>
+<style>
+:root{--bg:#07111F;--bg2:#0D1E30;--border:#1E3A5A;--text:#B8D4F0;--text2:#4A7899}
+*{box-sizing:border-box;margin:0;padding:0}
+body{background:var(--bg);color:var(--text);font-family:'SFMono-Regular',Consolas,monospace;min-height:100vh}
+header{background:var(--bg2);border-bottom:1px solid var(--border);padding:12px 20px;display:flex;align-items:center;gap:12px}
+.logo{font-size:22px}.title{font-size:15px;font-weight:700;color:#3A8FD8}.sub{font-size:10px;color:var(--text2);margin-top:2px}
+.legend{margin-left:auto;display:flex;gap:14px;font-size:10px;align-items:center}
+.dot{width:10px;height:10px;border-radius:2px;display:inline-block;margin-right:4px}
+.tabs{background:var(--bg2);border-bottom:1px solid var(--border);padding:8px 20px;display:flex;gap:6px}
+.tab{background:#112540;border:1.5px solid var(--border);border-radius:5px;padding:5px 18px;cursor:pointer;font-family:inherit;font-size:12px;font-weight:700;color:#7AA8CC;transition:all .15s}
+.tab:hover{border-color:#3A8FD8;color:#B8D4F0}
+.tab.active{color:#fff}
+.tab[data-l=TOP].active{background:#FF8C69;border-color:#FF8C69}
+.tab[data-l=ART02].active{background:#3A8FD8;border-color:#3A8FD8}
+.tab[data-l=ART03].active{background:#5AAA30;border-color:#5AAA30}
+.tab[data-l=BOTTOM].active{background:#CC9A30;border-color:#CC9A30}
+main{padding:16px 20px}
+.img-wrap{background:var(--bg2);border:1px solid var(--border);border-radius:8px;overflow:hidden;position:relative}
+.img-wrap img{width:100%;display:block;transition:opacity .2s}
+.info{margin-top:14px;display:grid;grid-template-columns:repeat(4,1fr);gap:10px}
+.card{background:var(--bg2);border:1.5px solid var(--border);border-radius:7px;padding:10px 14px;cursor:pointer;transition:border-color .15s}
+.card:hover,.card.active{border-color:#3A8FD8;background:#112540}
+.card[data-l=TOP].active{border-color:#FF8C69}
+.card[data-l=ART02].active{border-color:#69C4FF}
+.card[data-l=ART03].active{border-color:#A8FF69}
+.card[data-l=BOTTOM].active{border-color:#FFD069}
+.cname{font-size:13px;font-weight:700;margin-bottom:4px}
+.cname[data-l=TOP]{color:#FF8C69}.cname[data-l=ART02]{color:#69C4FF}
+.cname[data-l=ART03]{color:#A8FF69}.cname[data-l=BOTTOM]{color:#FFD069}
+.cstat{font-size:10px;color:var(--text2);margin-top:2px}
+footer{text-align:center;padding:10px;font-size:10px;color:var(--text2);border-top:1px solid var(--border);margin-top:16px}
+</style>
+</head>
+<body>
+<header>
+  <div class="logo">🔬</div>
+  <div><div class="title">PCB Feasible Area Viewer</div>
+  <div class="sub">FPC camera ribbon · 145.7×20.58 mm · 4-layer · Area-First model</div></div>
+  <div class="legend">
+    <span><span class="dot" style="background:#4488AA;opacity:.5"></span>Feasible (routable)</span>
+    <span><span class="dot" style="background:#FF3333"></span>Obstacle / forbidden zone</span>
+    <span><span class="dot" style="background:#88CCFF"></span>Pin location</span>
+  </div>
+</header>
+<div class="tabs">
+  <button class="tab active" data-l="TOP"    onclick="sel('TOP')">TOP</button>
+  <button class="tab"        data-l="ART02"  onclick="sel('ART02')">ART02</button>
+  <button class="tab"        data-l="ART03"  onclick="sel('ART03')">ART03</button>
+  <button class="tab"        data-l="BOTTOM" onclick="sel('BOTTOM')">BOTTOM</button>
+</div>
+<main>
+  <div class="img-wrap"><img id="img" src="images/TOP.png" alt="layer"></div>
+  <div class="info">
+    <div class="card active" data-l="TOP" onclick="sel('TOP')">
+      <div class="cname" data-l="TOP">TOP</div>
+      <div class="cstat">Area: 516.6 mm²</div>
+      <div class="cstat">Obstacles: 36</div>
+      <div class="cstat" style="color:#FF8C69">SMD pads (top side)</div>
+    </div>
+    <div class="card" data-l="ART02" onclick="sel('ART02')">
+      <div class="cname" data-l="ART02">ART02</div>
+      <div class="cstat">Area: 527.6 mm²</div>
+      <div class="cstat">Obstacles: 0</div>
+      <div class="cstat" style="color:#69C4FF">Inner layer — fully open</div>
+    </div>
+    <div class="card" data-l="ART03" onclick="sel('ART03')">
+      <div class="cname" data-l="ART03">ART03</div>
+      <div class="cstat">Area: 527.6 mm²</div>
+      <div class="cstat">Obstacles: 0</div>
+      <div class="cstat" style="color:#A8FF69">Inner layer — fully open</div>
+    </div>
+    <div class="card" data-l="BOTTOM" onclick="sel('BOTTOM')">
+      <div class="cname" data-l="BOTTOM">BOTTOM</div>
+      <div class="cstat">Area: 498.8 mm²</div>
+      <div class="cstat">Obstacles: 83</div>
+      <div class="cstat" style="color:#FFD069">Most pads on bottom side</div>
+    </div>
+  </div>
+</main>
+<footer>gaorong77/pcb-feasible-viewer · feasible_area.json from compute_feasible_area.py · obstacle = pad + clearance_baked</footer>
+<script>
+function sel(l){
+  document.getElementById('img').src='images/'+l+'.png?t='+Date.now();
+  document.querySelectorAll('.tab').forEach(b=>b.classList.toggle('active',b.dataset.l===l));
+  document.querySelectorAll('.card').forEach(c=>c.classList.toggle('active',c.dataset.l===l));
+}
+</script>
+</body>
+</html>
